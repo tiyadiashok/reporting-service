@@ -110,4 +110,45 @@ public class ReportingServiceClient {
                 .log()
                 .doFinally(signalType -> log.info("Finally: {}", signalType));
     }
+
+    public Flux<Response<MultiplicationTableResponse>> getAllMultiplicationTableResponse() {
+        return requester.route("multiplication.table.r2dbc.all")
+                .retrieveFlux(new ParameterizedTypeReference<Response<MultiplicationTableResponse>>() {})
+                .doOnNext(response -> {
+                    if(response.hasError())
+                        log.error("Received error response: {}", response.getErrorResponse().getStatusCode().getDescription());
+                    else
+                        log.info("Received response: {}", response.getSuccessResponse());
+                })
+                .onErrorReturn(Response.with(new ErrorEvent(StatusCode.EC003)))
+                .doFinally(signalType -> log.info("Finally: {}", signalType));
+    }
+
+    public Flux<Response<MultiplicationTableResponse>> createMultiplicationTableResponse(MultiplicationTableRequest request) {
+        return requester.route("multiplication.table.r2dbc.create")
+                .data(request)
+                .retrieveFlux(new ParameterizedTypeReference<Response<MultiplicationTableResponse>>() {})
+                .doOnNext(response -> {
+                    if(response.hasError())
+                        log.error("Received error response: {}", response.getErrorResponse().getStatusCode().getDescription());
+                    else
+                        log.info("Received response: {}", response.getSuccessResponse());
+                })
+                .onErrorReturn(Response.with(new ErrorEvent(StatusCode.EC003)))
+                .doFinally(signalType -> log.info("Finally: {}", signalType));
+    }
+
+    public Flux<Response<MultiplicationTableResponse>> findByNumberMultiplicationTableResponse(MultiplicationTableRequest request) {
+        return requester.route("multiplication.table.r2dbc.find.by.number")
+                .data(request)
+                .retrieveFlux(new ParameterizedTypeReference<Response<MultiplicationTableResponse>>() {})
+                .doOnNext(response -> {
+                    if(response.hasError())
+                        log.error("Received error response: {}", response.getErrorResponse().getStatusCode().getDescription());
+                    else
+                        log.info("Received response: {}", response.getSuccessResponse());
+                })
+                .onErrorReturn(Response.with(new ErrorEvent(StatusCode.EC003)))
+                .doFinally(signalType -> log.info("Finally: {}", signalType));
+    }
 }

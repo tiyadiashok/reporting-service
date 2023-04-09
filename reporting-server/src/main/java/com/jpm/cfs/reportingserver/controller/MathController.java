@@ -5,7 +5,9 @@ import com.jpm.cfs.reportingserver.dto.MultiplicationTableResponse;
 import com.jpm.cfs.reportingserver.dto.Response;
 import com.jpm.cfs.reportingserver.dto.error.ErrorEvent;
 import com.jpm.cfs.reportingserver.dto.error.StatusCode;
+import com.jpm.cfs.reportingserver.entity.MultiplicationTable;
 import com.jpm.cfs.reportingserver.service.MathService;
+import com.jpm.cfs.reportingserver.uitl.EntityDtoUtil;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.handler.annotation.MessageExceptionHandler;
@@ -39,6 +41,44 @@ public class MathController {
                 .map(Response::with)
                 .defaultIfEmpty(Response.with(new ErrorEvent(StatusCode.EC002)))
                 .doOnNext(response -> log.info("Sending response in Controller: {}", response));
+    }
+
+    @MessageMapping("multiplication.table.r2dbc.all")
+    public Flux<Response<MultiplicationTableResponse>> multiplicationTableResponseR2dbc() {
+        log.info("Received request : r2dbc.all");
+        return mathService.all()
+                .map(EntityDtoUtil::toResponse)
+                .map(Response::with)
+                .defaultIfEmpty(Response.with(new ErrorEvent(StatusCode.EC002)))
+                .doOnNext(response -> log.info("Sending response in r2dbc Controller: {}", response));
+    }
+
+    @MessageMapping("multiplication.table.r2dbc.find.by.number")
+    public Flux<Response<MultiplicationTableResponse>> multiplicationTableResponseR2dbcByNumber(Mono<MultiplicationTableRequest> request) {
+        log.info("Received request : r2dbc.by.number {}", request);
+        return request
+                .filter(r -> r.getNumber() % 2 == 0)
+                .flatMapMany(r -> mathService.findByNumber(r.getNumber()))
+                .map(EntityDtoUtil::toResponse)
+                .map(Response::with)
+                .defaultIfEmpty(Response.with(new ErrorEvent(StatusCode.EC002)))
+                .doOnNext(response -> log.info("Sending response in r2dbc Controller: {}", response));
+    }
+
+    @MessageMapping("multiplication.table.r2dbc.create")
+    public Flux<Response<MultiplicationTableResponse>> multiplicationTableResponseR2dbcCreate(Mono<MultiplicationTableRequest> request) {
+        log.info("Received request : r2dbc.create");
+
+        Flux<MultiplicationTable> tableFlux = request
+                .filter(r -> r.getNumber() % 2 == 0)
+                .flatMapMany(r -> mathService.multiplicationTable(r))
+                .map(EntityDtoUtil::toEntity);
+
+        return mathService.createMultiplicationTable(tableFlux)
+                .map(EntityDtoUtil::toResponse)
+                .map(Response::with)
+                .defaultIfEmpty(Response.with(new ErrorEvent(StatusCode.EC002)))
+                .doOnNext(response -> log.info("Sending response in r2dbc Controller: {}", response));
     }
 
     @MessageExceptionHandler(RuntimeException.class)
