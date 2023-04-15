@@ -29,11 +29,28 @@ public class RequestHandler {
                 .body(responseFlux, MultiplicationTableResponse.class);
     }
 
+    public Mono<ServerResponse> getMultiplicationTableMono(ServerRequest request) {
+        int number = Integer.parseInt(request.pathVariable("number"));
+        int limit = Integer.parseInt(request.pathVariable("limit"));
+
+        Flux<MultiplicationTableResponse> responseFlux = reportingService.getMultiplicationTable(MultiplicationTableRequest.create(number, limit));
+        return ServerResponse.ok()
+                //this will send entire response in one go
+                .body(responseFlux, MultiplicationTableResponse.class);
+    }
+
     public Mono<ServerResponse> getAllMultiplicationTable(ServerRequest request) {
 
         Flux<Response<MultiplicationTableResponse>> responseFlux = reportingService.getAllMultiplicationTableResponse();
         return ServerResponse.ok()
                 .contentType(MediaType.TEXT_EVENT_STREAM)
+                .body(responseFlux, Response.class);
+    }
+
+    public Mono<ServerResponse> getAllMultiplicationTableMono(ServerRequest request) {
+
+        Flux<Response<MultiplicationTableResponse>> responseFlux = reportingService.getAllMultiplicationTableResponse();
+        return ServerResponse.ok()
                 .body(responseFlux, Response.class);
     }
 

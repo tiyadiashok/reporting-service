@@ -23,13 +23,14 @@ public class MathService {
 
     public Flux<MultiplicationTableResponse> multiplicationTable(MultiplicationTableRequest request) {
         return Flux.range(1, request.getLimit())
-                .delayElements(Duration.ofSeconds(1))
+                //.delayElements(Duration.ofSeconds(1))
                 .map(i -> MultiplicationTableResponse.create(request.getNumber(), i, request.getNumber() * i))
                 .doOnNext(response -> log.info("Sending response: {}", response));
     }
 
     public Flux<MultiplicationTable> all() {
         return multiplicationTableRepository.findAll();
+                //.delayElements(Duration.ofSeconds(1));
     }
 
     public Flux<MultiplicationTable> findByNumber(int number) {

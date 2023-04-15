@@ -18,6 +18,8 @@ public class RouterConfig {
 
         return RouterFunctions.route()
                 .GET("reporting/router/multiplication-table/{number}/{limit}", requestHandler::getMultiplicationTable)
+                .GET("reporting/router/multiplication-table/mono/{number}/{limit}", requestHandler::getMultiplicationTableMono)
+                .GET("reporting/router/multiplication-table/mono", requestHandler::getAllMultiplicationTableMono)
                 .GET("reporting/router/multiplication-table", requestHandler::getAllMultiplicationTable)
                 .GET("reporting/router/multiplication-table/{number}", requestHandler::findByNumberMultiplicationTable)
                 .POST("reporting/router/multiplication-table/{number}/{limit}", requestHandler::createMultiplicationTable)
